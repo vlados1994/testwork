@@ -11,7 +11,6 @@
         @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     </head>
     <body id="app" class="antialiased">
-        <router-link to="/registration">Перейти к Foo</router-link>
         <router-view></router-view>
     </body>
 </html>
