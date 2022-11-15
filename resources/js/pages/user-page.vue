@@ -40,7 +40,7 @@
                             ></v-select>
                         </v-col>
                     </v-row>
-                    <v-row>
+                    <v-row v-if="dentist && service">
                         <v-col
                             cols="12"
                             md="12"
@@ -48,14 +48,32 @@
                             <Datepicker v-model="date"/>
                         </v-col>
                     </v-row>
-                    <v-row>
+                    <v-row
+                        v-if="date"
+                        class="appointment__hours"
+                    >
+                        <v-col
+                            class="appointment__hour"
+                            v-for="hour in [8, 9, 10, 11, 12]"
+                            cols="12"
+                            md="12"
+                            :style="{
+                                border: inSchedule(hour) ? '3px solid green' : '3px solid red',
+                                cursor: inSchedule(hour) ? 'auto' : 'pointer',
+                            }"
+                            @click="selectHour(hour)"
+                        >
+                            {{ hour }}:00 - {{ hour + 1 }}:00
+                        </v-col>
+                    </v-row>
+                    <v-row v-if="dentist && service && date && hour">
                         <v-responsive
                             class="mx-auto appointment__btn"
                             max-width="220"
                         >
                             <v-btn
                                 color="success"
-                                @click="makeAnAppointment"
+                                @click="send"
                             >
                                 Записаться на прием
                             </v-btn>
@@ -68,6 +86,8 @@
 </template>
 
 <script>
+import {mapActions} from "vuex";
+
 export default {
     data: () => ({
         valid: false,
@@ -77,10 +97,7 @@ export default {
             v => !!v || 'Dentist is required',
         ],
         service: '',
-        services: [
-            {id: 1, name: 'Лечение кариеса'},
-            {id: 2, name: 'Удаление зуба'}
-        ],
+        services: [],
         serviceRules: [
             v => !!v || 'Service is required',
         ],
@@ -88,53 +105,56 @@ export default {
         dateRules: [
             v => !!v || 'Service is required',
         ],
+        hour: '',
+        schedules: [],
     }),
     async mounted() {
-        console.log('Component mounted.')
-        const response = await axios.get('/api/users', {
-            type: 'dentist',
-        });
+        this.dentists = await this.getUsers('dentist');
 
-        this.dentists = response.data.data;
-        console.log('this.dentists ', this.dentists);
+        this.services = await this.getServices();
     },
-    methods: {
-        async makeAnAppointment() {
-            const {valid} = await this.$refs.form.validate()
-
-            if (!valid) {
-                return false;
-            }
-
-            const response = await axios.post('/api/make-an-appointment', {
-                name: this.fullName,
-                phone: this.phone,
-                email: this.email,
-                password: this.password,
-                dentist: this.dentist,
-            });
-
-            console.log('response ', response.data.data.token);
-
-            if (response.data.success) {
-                localStorage.setItem('authtoken', response.data.data.token)
-
-                axios.interceptors.request.use(
-                    (config) => {
-                        const token = localStorage.getItem('authtoken');
-
-                        if (token) {
-                            config.headers['Authorization'] = `Bearer ${token}`;
-                        }
-
-                        return config;
-                    },
-                    (error) => {
-                        return Promise.reject(error);
-                    }
-                );
+    watch: {
+        date(val) {
+            if (val) {
+                this.getSchedules();
             }
         }
+    },
+    methods: {
+        ...mapActions([
+            'getServices',
+            'getUsers',
+        ]),
+        inSchedule(hour) {
+            const result = this.schedules.find(element => element.hour === hour);
+
+            return result !== undefined;
+        },
+        async send() {
+            const response = await axios.post('/api/schedules', {
+                dentist_id: this.dentist,
+                service_id: this.service,
+                date: this.date,
+                hour: this.hour,
+            });
+
+            await this.getSchedules();
+        },
+        async getSchedules() {
+            const response = await axios.get('/api/schedules', {
+                params: {
+                    dentist_id: this.dentist,
+                    date: this.date,
+                }
+            });
+
+            this.schedules = response.data.data;
+        },
+        async selectHour(hour) {
+            if (!this.inSchedule(hour)) {
+                this.hour = hour;
+            }
+        },
     },
 }
 </script>
@@ -159,5 +179,14 @@ export default {
 
 .appointment__btn {
     margin-top: 30px;
+}
+
+.appointment__hours {
+    margin-top: 30px;
+}
+
+.appointment__hour {
+    border: 3px solid red;
+    margin-bottom: 5px;
 }
 </style>

@@ -133,20 +133,16 @@ export default {
     methods: {
         ...mapActions([
             'getServices',
+            'getUsers'
         ]),
         async deleteUser(id) {
             const response = await axios.delete('/api/users/' + id, {});
 
-            await this.getUsers();
-        },
-        async getUsers() {
-            const response = await axios.get('/api/users', {});
-
-            this.users = response.data.data;
+            this.users = await this.getUsers();
         },
     },
     async mounted() {
-        await this.getUsers();
+        this.users = await this.getUsers();
         this.services = await this.getServices();
     },
 }

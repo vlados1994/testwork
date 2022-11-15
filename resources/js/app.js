@@ -21,21 +21,30 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
-import { createStore } from 'vuex'
+import {createStore} from 'vuex'
 
 const store = createStore({
-    state () {
-        return {
-        }
+    state() {
+        return {}
     },
-    mutations: {
-    },
+    mutations: {},
     actions: {
-        async getServices(context) {
+        async getServices() {
             const response = await axios.get('/api/services', {});
 
             return response.data.data;
-        }
+        },
+        async getUsers(context, type = '') {
+            let url = '/api/users?';
+
+            if (type) {
+                url += 'type=' + type;
+            }
+
+            const response = await axios.get(url, {});
+
+            return response.data.data;
+        },
     }
 })
 
@@ -78,6 +87,11 @@ const routes = [
         path: '/user-page',
         name: "user-page",
         component: () => import('./pages/user-page.vue')
+    },
+    {
+        path: '/dentist-page',
+        name: "dentist-page",
+        component: () => import('./pages/dentist-page.vue')
     },
     {
         path: '/admin-login',

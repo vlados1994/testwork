@@ -126,9 +126,7 @@ export default {
     }),
     methods: {
         async registration() {
-            const {valid} = await this.$refs.form.validate()
-
-            if (!valid) {
+            if (!this.valid) {
                 return false;
             }
 
@@ -140,7 +138,7 @@ export default {
                 type: this.type,
             });
 
-            console.log('response ', response.data.data.token);
+            const type = response.data.data.type;
 
             if (response.data.success) {
                 localStorage.setItem('authtoken', response.data.data.token)
@@ -159,12 +157,15 @@ export default {
                         return Promise.reject(error);
                     }
                 );
+
+                if (type === 'user') {
+                    this.$router.push({ name: 'user-page' });
+                } else {
+                    this.$router.push({ name: 'dentist-page' });
+                }
             }
         }
     },
-    mounted() {
-        console.log('Component mounted.')
-    }
 }
 </script>
 
