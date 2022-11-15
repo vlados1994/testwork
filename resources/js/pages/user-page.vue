@@ -116,7 +116,7 @@ export default {
     watch: {
         date(val) {
             if (val) {
-                this.getSchedules();
+                this.schedules = this.getSchedules({dentist: this.dentist, date: this.date});
             }
         }
     },
@@ -124,6 +124,7 @@ export default {
         ...mapActions([
             'getServices',
             'getUsers',
+            'getSchedules',
         ]),
         inSchedule(hour) {
             const result = this.schedules.find(element => element.hour === hour);
@@ -138,18 +139,9 @@ export default {
                 hour: this.hour,
             });
 
-            await this.getSchedules();
+            this.schedules = await this.getSchedules({dentist: this.dentist, date: this.date});
         },
-        async getSchedules() {
-            const response = await axios.get('/api/schedules', {
-                params: {
-                    dentist_id: this.dentist,
-                    date: this.date,
-                }
-            });
 
-            this.schedules = response.data.data;
-        },
         async selectHour(hour) {
             if (!this.inSchedule(hour)) {
                 this.hour = hour;

@@ -13,12 +13,16 @@ class ScheduleController extends BaseController
     {
         $query = Schedule::query();
 
-        if($request->has('dentist_id')) {
+        if ($request->has('dentist_id')) {
             $query = $query->where(['dentist_id' => $request->dentist_id]);
         }
 
-        if($request->has('date')) {
+        if ($request->has('date')) {
             $query = $query->whereDate('date', '=', Carbon::parse($request->date));
+        }
+
+        if ($request->has('isDentist')) {
+            $query = $query->where(['dentist_id' => auth('sanctum')->user()->id]);
         }
 
         $data = $query->get();
@@ -36,6 +40,15 @@ class ScheduleController extends BaseController
         $schedule->date = Carbon::parse($request->date);
         $schedule->hour = $request->hour;
         $schedule->save();
+
+        return $this->sendResponse($schedule, 'ok');
+    }
+
+    public function updateSchedule(Request $request, $id): \Illuminate\Http\JsonResponse
+    {
+        $schedule = Schedule::query()->where(['id' => $id])->first();
+        $schedule->status_id = $request->status_id;
+        $schedule->update();
 
         return $this->sendResponse($schedule, 'ok');
     }

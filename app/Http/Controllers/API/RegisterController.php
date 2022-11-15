@@ -40,7 +40,7 @@ class RegisterController extends BaseController
      */
     public function login(Request $request): \Illuminate\Http\JsonResponse
     {
-        if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){
+        if(Auth::attempt(['name' => $request->name, 'password' => $request->password])){
             $user = Auth::user();
             $success['token'] =  $user->createToken('MyApp')->plainTextToken;
             $success['name'] =  $user->name;

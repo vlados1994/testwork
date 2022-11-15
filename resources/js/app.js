@@ -45,6 +45,16 @@ const store = createStore({
 
             return response.data.data;
         },
+        async getSchedules(context, {dentist, date}) {
+            const response = await axios.get('/api/schedules', {
+                params: {
+                    dentist_id: dentist,
+                    date,
+                }
+            });
+
+            return response.data.data;
+        },
     }
 })
 
@@ -82,6 +92,11 @@ const routes = [
         path: '/registration',
         name: "registration",
         component: () => import('./pages/registration.vue')
+    },
+    {
+        path: '/login',
+        name: "login",
+        component: () => import('./pages/login.vue')
     },
     {
         path: '/user-page',
