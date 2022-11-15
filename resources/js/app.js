@@ -5,7 +5,7 @@
  */
 
 import './bootstrap';
-import { createApp } from 'vue';
+import {createApp} from 'vue';
 
 /**
  * Next, we will create a fresh Vue application instance. You may then begin
@@ -16,9 +16,13 @@ import { createApp } from 'vue';
 const app = createApp({});
 
 import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
+import {createVuetify} from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
+import Datepicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
+
+app.component('Datepicker', Datepicker);
 
 const vuetify = createVuetify({
     components,
@@ -27,18 +31,49 @@ const vuetify = createVuetify({
 
 app.use(vuetify);
 
-import {createRouter, createWebHistory}  from 'vue-router'
+axios.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('authtoken');
+
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        return config;
+    },
+
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+import {createRouter, createWebHistory} from 'vue-router'
 
 const routes = [
     {
-        path:'/registration',
-        name:"Registration",
-        component:()=>import('./pages/registration.vue')
+        path: '/registration',
+        name: "registration",
+        component: () => import('./pages/registration.vue')
+    },
+    {
+        path: '/user-page',
+        name: "user-page",
+        component: () => import('./pages/user-page.vue')
+    },
+    {
+        path: '/admin-login',
+        name: "admin-login",
+        component: () => import('./pages/admin-login.vue')
+    },
+    {
+        path: '/admin',
+        name: "admin",
+        component: () => import('./pages/admin.vue')
     }
 ]
 
 const router = createRouter({
-    history:createWebHistory(),
+    history: createWebHistory(),
     routes
 })
 
@@ -46,6 +81,7 @@ const router = createRouter({
 app.use(router);
 
 import ExampleComponent from './components/ExampleComponent.vue';
+
 app.component('example-component', ExampleComponent);
 
 

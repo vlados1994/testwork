@@ -101,7 +101,6 @@
 <script>
 export default {
     data: () => ({
-        alert: false,
         valid: false,
         fullName: '',
         nameRules: [
@@ -127,7 +126,7 @@ export default {
     }),
     methods: {
         async registration() {
-            const { valid } = await this.$refs.form.validate()
+            const {valid} = await this.$refs.form.validate()
 
             if (!valid) {
                 return false;
@@ -141,7 +140,26 @@ export default {
                 type: this.type,
             });
 
-            console.log('response ', response);
+            console.log('response ', response.data.data.token);
+
+            if (response.data.success) {
+                localStorage.setItem('authtoken', response.data.data.token)
+
+                axios.interceptors.request.use(
+                    (config) => {
+                        const token = localStorage.getItem('authtoken');
+
+                        if (token) {
+                            config.headers['Authorization'] = `Bearer ${token}`;
+                        }
+
+                        return config;
+                    },
+                    (error) => {
+                        return Promise.reject(error);
+                    }
+                );
+            }
         }
     },
     mounted() {
