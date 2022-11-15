@@ -119,6 +119,8 @@
 </template>
 
 <script>
+import {mapActions} from "vuex";
+
 export default {
     data: () => ({
         users: [],
@@ -129,6 +131,9 @@ export default {
         services: [],
     }),
     methods: {
+        ...mapActions([
+            'getServices',
+        ]),
         async deleteUser(id) {
             const response = await axios.delete('/api/users/' + id, {});
 
@@ -139,17 +144,10 @@ export default {
 
             this.users = response.data.data;
         },
-        async getServices() {
-            const response = await axios.get('/api/services', {});
-
-            this.services = response.data.data;
-
-            console.log('this.services', this.services);
-        }
     },
     async mounted() {
         await this.getUsers();
-        await this.getServices();
+        this.services = await this.getServices();
     },
 }
 </script>

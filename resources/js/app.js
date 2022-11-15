@@ -21,6 +21,25 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
+import { createStore } from 'vuex'
+
+const store = createStore({
+    state () {
+        return {
+        }
+    },
+    mutations: {
+    },
+    actions: {
+        async getServices(context) {
+            const response = await axios.get('/api/services', {});
+
+            return response.data.data;
+        }
+    }
+})
+
+app.use(store)
 
 app.component('Datepicker', Datepicker);
 
