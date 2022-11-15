@@ -3,3 +3,5 @@
 3) ./vendor/bin/sail composer install
 4) ./vendor/bin/sail npm install
 5) ./vendor/bin/sail npm run dev
+6) ./vendor/bin/sail php artisan migrate
+7) ./vendor/bin/sail php artisan db:seed --class=ServiceSeeder
